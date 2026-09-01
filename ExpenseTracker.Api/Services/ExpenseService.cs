@@ -7,14 +7,17 @@ namespace ExpenseTracker.Api.Services
     public class ExpenseService : IExpenseService
     {
         private readonly IExpenseRepository _repository;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ExpenseService(IExpenseRepository repository)
+        public ExpenseService(IExpenseRepository repository, ICurrentUserService currentUserService)
         {
             _repository = repository;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ExpenseResponse> CreateAsync(CreateExpenseRequest request)
         {
+            var userId = _currentUserService.GetUserId();
             var expense = new Expense
             {
                 Title = request.Title,
@@ -22,7 +25,8 @@ namespace ExpenseTracker.Api.Services
                 Category = request.Category,
                 ExpenseDate = request.ExpenseDate,
                 Description = request.Description,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UserId = userId
             };
             await _repository.CreateAsync(expense);    
             return MapToResponse(expense);
@@ -30,7 +34,8 @@ namespace ExpenseTracker.Api.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var expense = await _repository.GetByIdAsync(id);
+            var userId = _currentUserService.GetUserId();
+            var expense = await _repository.GetByIdAsync(id, userId);
 
             if (expense == null)
                 return false;
@@ -42,21 +47,24 @@ namespace ExpenseTracker.Api.Services
 
         public async Task<List<ExpenseResponse>> GetAllAsync()
         {
-            var expenses = await _repository.GetAllAsync();
+            var userId = _currentUserService.GetUserId();
+            var expenses = await _repository.GetAllAsync(userId);
 
             return expenses.Select(MapToResponse).ToList();
         }
 
         public async Task<ExpenseResponse?> GetByIdAsync(int id)
         {
-            var expense = await _repository.GetByIdAsync(id);
+            var userId = _currentUserService.GetUserId();
+            var expense = await _repository.GetByIdAsync(id, userId);
 
             return expense == null ? null : MapToResponse(expense);
         }
 
         public async Task<bool> UpdateAsync(int id, UpdateExpenseRequest request)
         {
-            var expense = await _repository.GetByIdAsync(id);
+            var userId = _currentUserService.GetUserId();
+            var expense = await _repository.GetByIdAsync(id, userId);
 
             if (expense == null)
                 return false;

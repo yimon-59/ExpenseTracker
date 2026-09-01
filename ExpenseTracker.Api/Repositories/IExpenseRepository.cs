@@ -4,9 +4,9 @@ namespace ExpenseTracker.Api.Repositories
 {
     public interface IExpenseRepository
     {
-        Task<List<Expense>> GetAllAsync();
+        Task<List<Expense>> GetAllAsync(int userId);
 
-        Task<Expense?> GetByIdAsync(int id);
+        Task<Expense?> GetByIdAsync(int id, int userId);
 
         Task<Expense> CreateAsync(Expense expense);
 

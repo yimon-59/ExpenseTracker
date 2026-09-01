@@ -28,16 +28,17 @@ namespace ExpenseTracker.Api.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Expense>> GetAllAsync()
+        public async Task<List<Expense>> GetAllAsync(int userId)
         {
             return await _context.Expenses
+            .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.ExpenseDate)
             .ToListAsync();
         }
 
-        public async Task<Expense?> GetByIdAsync(int id)
+        public async Task<Expense?> GetByIdAsync(int id, int userId)
         {
-            return await _context.Expenses.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Expenses.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
         }
 
         public async Task UpdateAsync(Expense expense)

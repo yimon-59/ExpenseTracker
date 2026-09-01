@@ -1,10 +1,12 @@
 ﻿using ExpenseTracker.Api.DTOs.Expense;
 using ExpenseTracker.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class ExpensesController : ControllerBase
 {
