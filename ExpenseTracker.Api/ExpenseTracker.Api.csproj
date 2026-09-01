@@ -10,8 +10,7 @@
     <Folder Include="Middleware\" />
     <Folder Include="Helpers\" />
     <Folder Include="Migrations\" />
-    <Folder Include="DTOs\" />
-    <Folder Include="Repository\" />
+    <Folder Include="Repositories\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

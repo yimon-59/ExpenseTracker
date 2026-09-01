@@ -1,7 +1,6 @@
-﻿using ExpenseTracker.Api.Data;
-using ExpenseTracker.Api.Models;
+﻿using ExpenseTracker.Api.DTOs.Expense;
+using ExpenseTracker.Api.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.Api.Controllers;
 
@@ -9,19 +8,17 @@ namespace ExpenseTracker.Api.Controllers;
 [Route("api/[controller]")]
 public class ExpensesController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IExpenseService _service;
 
-    public ExpensesController(AppDbContext context)
+    public ExpensesController(IExpenseService service)
     {
-        _context = context;
+        _service = service;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetExpenses()
     {
-        var expenses = await _context.Expenses
-            .OrderByDescending(x => x.ExpenseDate)
-            .ToListAsync();
+        var expenses = await _service.GetAllAsync();
 
         return Ok(expenses);
     }
@@ -29,25 +26,19 @@ public class ExpensesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetExpense(int id)
     {
-        var expense = await _context.Expenses
-            .FirstOrDefaultAsync(x => x.Id == id);
+        var expense = await _service.GetByIdAsync(id);
 
         if (expense == null)
-        {
             return NotFound();
-        }
 
         return Ok(expense);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateExpense(Expense expense)
+    public async Task<IActionResult> CreateExpense(
+        CreateExpenseRequest request)
     {
-        expense.CreatedAt = DateTime.UtcNow;
-
-        _context.Expenses.Add(expense);
-
-        await _context.SaveChangesAsync();
+        var expense = await _service.CreateAsync(request);
 
         return CreatedAtAction(
             nameof(GetExpense),
@@ -58,41 +49,23 @@ public class ExpensesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateExpense(
         int id,
-        Expense request)
+        UpdateExpenseRequest request)
     {
-        var expense = await _context.Expenses
-            .FirstOrDefaultAsync(x => x.Id == id);
+        var updated = await _service.UpdateAsync(id, request);
 
-        if (expense == null)
-        {
+        if (!updated)
             return NotFound();
-        }
 
-        expense.Title = request.Title;
-        expense.Amount = request.Amount;
-        expense.Category = request.Category;
-        expense.ExpenseDate = request.ExpenseDate;
-        expense.Description = request.Description;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(expense);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)
     {
-        var expense = await _context.Expenses
-            .FirstOrDefaultAsync(x => x.Id == id);
+        var deleted = await _service.DeleteAsync(id);
 
-        if (expense == null)
-        {
+        if (!deleted)
             return NotFound();
-        }
-
-        _context.Expenses.Remove(expense);
-
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
