@@ -18,9 +18,10 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetExpenses()
+    public async Task<IActionResult> GetExpenses(
+     [FromQuery] ExpenseQuery query)
     {
-        var expenses = await _service.GetAllAsync();
+        var expenses = await _service.GetPagedAsync(query);
 
         return Ok(expenses);
     }

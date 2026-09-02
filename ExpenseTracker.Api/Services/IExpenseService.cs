@@ -1,10 +1,12 @@
-﻿using ExpenseTracker.Api.DTOs.Expense;
+﻿using ExpenseTracker.Api.DTOs.Common;
+using ExpenseTracker.Api.DTOs.Expense;
 
 namespace ExpenseTracker.Api.Services
 {
     public interface IExpenseService
     {
-        Task<List<ExpenseResponse>> GetAllAsync();
+        Task<PagedResponse<ExpenseResponse>> GetPagedAsync(
+        ExpenseQuery query);
 
         Task<ExpenseResponse?> GetByIdAsync(int id);
 

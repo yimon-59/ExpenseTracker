@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Api.DTOs.Expense;
+﻿using ExpenseTracker.Api.DTOs.Common;
+using ExpenseTracker.Api.DTOs.Expense;
 using ExpenseTracker.Api.Models;
 using ExpenseTracker.Api.Repositories;
 
@@ -45,12 +46,37 @@ namespace ExpenseTracker.Api.Services
             return true;
         }
 
-        public async Task<List<ExpenseResponse>> GetAllAsync()
+        public async Task<PagedResponse<ExpenseResponse>> GetPagedAsync(
+        ExpenseQuery query)
         {
             var userId = _currentUserService.GetUserId();
-            var expenses = await _repository.GetAllAsync(userId);
 
-            return expenses.Select(MapToResponse).ToList();
+            // Protect API from unreasonable values
+            if (query.Page < 1)
+                query.Page = 1;
+
+            if (query.PageSize < 1)
+                query.PageSize = 10;
+
+            if (query.PageSize > 100)
+                query.PageSize = 100;
+
+            var result = await _repository.GetPagedAsync(
+                userId,
+                query);
+
+            return new PagedResponse<ExpenseResponse>
+            {
+                Items = result.Items
+                    .Select(MapToResponse)
+                    .ToList(),
+
+                Page = query.Page,
+
+                PageSize = query.PageSize,
+
+                TotalCount = result.TotalCount
+            };
         }
 
         public async Task<ExpenseResponse?> GetByIdAsync(int id)
