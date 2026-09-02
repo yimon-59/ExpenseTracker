@@ -8,7 +8,7 @@
 
         public decimal Amount { get; set; }
 
-        public string Category { get; set; } = string.Empty;
+        public ExpenseCategory Category { get; set; }
 
         public DateTime ExpenseDate { get; set; }
 

@@ -47,10 +47,10 @@ namespace ExpenseTracker.Api.Repositories
             }
 
             // Category
-            if (!string.IsNullOrWhiteSpace(query.Category))
+            if (query.Category.HasValue)
             {
                 expenses = expenses.Where(x =>
-                    x.Category == query.Category);
+                    x.Category == query.Category.Value);
             }
 
             // From date

@@ -46,16 +46,15 @@ public class DashboardService : IDashboardService
             .SumAsync(x => (decimal?)x.Amount) ?? 0;
 
         var topCategory = await _context.Expenses
-            .Where(x => x.UserId == userId)
-            .GroupBy(x => x.Category)
-            .Select(g => new
-            {
-                Category = g.Key,
-                Total = g.Sum(x => x.Amount)
-            })
-            .OrderByDescending(x => x.Total)
-            .Select(x => x.Category)
-            .FirstOrDefaultAsync();
+         .Where(x => x.UserId == userId)
+         .GroupBy(x => x.Category)
+         .Select(g => new
+         {
+             Category = g.Key,
+             Total = g.Sum(x => x.Amount)
+         })
+         .OrderByDescending(x => x.Total)
+         .FirstOrDefaultAsync();
 
         return new DashboardSummaryResponse
         {
@@ -63,7 +62,7 @@ public class DashboardService : IDashboardService
             TotalExpense = totalExpense,
             Balance = totalIncome - totalExpense,
             ThisMonthExpense = thisMonthExpense,
-            TopExpenseCategory = topCategory
+            TopExpenseCategory = topCategory?.Category,
         };
     }
 }

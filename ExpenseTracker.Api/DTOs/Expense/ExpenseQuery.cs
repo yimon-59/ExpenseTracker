@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.Api.DTOs.Expense;
+﻿using ExpenseTracker.Api.Models;
+
+namespace ExpenseTracker.Api.DTOs.Expense;
 
 public class ExpenseQuery
 {
@@ -8,7 +10,7 @@ public class ExpenseQuery
 
     public string? Search { get; set; }
 
-    public string? Category { get; set; }
+    public ExpenseCategory? Category { get; set; }
 
     public DateTime? FromDate { get; set; }
 

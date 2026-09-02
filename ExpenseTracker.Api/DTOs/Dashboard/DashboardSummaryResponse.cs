@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.Api.DTOs.Dashboard;
+﻿using ExpenseTracker.Api.Models;
+
+namespace ExpenseTracker.Api.DTOs.Dashboard;
 
 public class DashboardSummaryResponse
 {
@@ -10,5 +12,5 @@ public class DashboardSummaryResponse
 
     public decimal ThisMonthExpense { get; set; }
 
-    public string? TopExpenseCategory { get; set; }
+    public ExpenseCategory? TopExpenseCategory { get; set; }
 }

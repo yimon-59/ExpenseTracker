@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.Api.DTOs.Expense
+﻿using ExpenseTracker.Api.Models;
+
+namespace ExpenseTracker.Api.DTOs.Expense
 {
     public class ExpenseResponse
     {
@@ -8,7 +10,7 @@
 
         public decimal Amount { get; set; }
 
-        public string Category { get; set; } = string.Empty;
+        public ExpenseCategory Category { get; set; }
 
         public DateTime ExpenseDate { get; set; }
 
