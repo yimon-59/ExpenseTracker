@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Api.DTOs.Common;
 using ExpenseTracker.Api.DTOs.Expense;
+using ExpenseTracker.Api.Helpers;
 using ExpenseTracker.Api.Models;
 using ExpenseTracker.Api.Repositories;
 
@@ -9,11 +10,14 @@ namespace ExpenseTracker.Api.Services
     {
         private readonly IExpenseRepository _repository;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IRedisCacheService _cache;
 
-        public ExpenseService(IExpenseRepository repository, ICurrentUserService currentUserService)
+        public ExpenseService(IExpenseRepository repository, ICurrentUserService currentUserService,
+            IRedisCacheService cache)
         {
             _repository = repository;
             _currentUserService = currentUserService;
+            _cache = cache;
         }
 
         public async Task<ExpenseResponse> CreateAsync(CreateExpenseRequest request)
@@ -29,7 +33,8 @@ namespace ExpenseTracker.Api.Services
                 CreatedAt = DateTime.UtcNow,
                 UserId = userId
             };
-            await _repository.CreateAsync(expense);    
+            await _repository.CreateAsync(expense);
+            await _cache.RemoveAsync(CacheKeys.DashboardSummary(userId));
             return MapToResponse(expense);
         }
 
@@ -42,6 +47,7 @@ namespace ExpenseTracker.Api.Services
                 return false;
 
             await _repository.DeleteAsync(expense);
+            await _cache.RemoveAsync(CacheKeys.DashboardSummary(userId));
 
             return true;
         }
@@ -102,7 +108,7 @@ namespace ExpenseTracker.Api.Services
             expense.Description = request.Description;
 
             await _repository.UpdateAsync(expense);
-
+            await _cache.RemoveAsync(CacheKeys.DashboardSummary(userId));
             return true;
         }
 

@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Api.DTOs.Income;
+using ExpenseTracker.Api.Helpers;
 using ExpenseTracker.Api.Models;
 using ExpenseTracker.Api.Repositories;
 
@@ -8,10 +9,13 @@ namespace ExpenseTracker.Api.Services
     {
         private readonly IIncomeRepository _incomeRepository;
         private readonly ICurrentUserService _currentUserService;
-        public IncomeService(IIncomeRepository incomeRepository, ICurrentUserService currentUserService)
+        private readonly IRedisCacheService _cache;
+        public IncomeService(IIncomeRepository incomeRepository, ICurrentUserService currentUserService,
+            IRedisCacheService cache)
         {
             _incomeRepository = incomeRepository;
             _currentUserService = currentUserService;
+            _cache = cache;
         }
 
         public async Task<IncomeResponse> CreateAsync(CreateIncomeRequest request)
@@ -28,6 +32,7 @@ namespace ExpenseTracker.Api.Services
                 UserId = userId
             };
             await _incomeRepository.CreateAsync(income);
+            await _cache.RemoveAsync(CacheKeys.DashboardSummary(userId));
             return MapToResponse(income);
         }
 
@@ -40,7 +45,7 @@ namespace ExpenseTracker.Api.Services
                 return false;
 
             await _incomeRepository.DeleteAsync(income);
-
+            await _cache.RemoveAsync(CacheKeys.DashboardSummary(userId));
             return true;
         }
 
@@ -73,7 +78,7 @@ namespace ExpenseTracker.Api.Services
             income.Description = request.Description;
 
             await _incomeRepository.UpdateAsync(income);
-
+            await _cache.RemoveAsync(CacheKeys.DashboardSummary(userId));
             return true;
         }
 
